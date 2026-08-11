@@ -12,17 +12,34 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "compile": "tsc --noEmit",
-    "postinstall": "wxt prepare"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "postinstall": "wxt prepare",
+    "prepare": "husky"
   },
   "dependencies": {
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
     "@wxt-dev/module-react": "^1.1.5",
+    "eslint": "^9.39.2",
+    "eslint-plugin-only-warn": "^1.1.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-turbo": "^2.8.1",
+    "eslint-plugin-unused-imports": "^4.3.0",
+    "globals": "^17.2.0",
+    "husky": "^9.1.7",
+    "prettier": "^3.8.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0",
     "web-ext": "^10.5.0",
     "wxt": "^0.21.3"
   }

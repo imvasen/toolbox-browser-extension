@@ -65,7 +65,7 @@ function createViewer(data: JsonValue) {
     <header>
       <div class="brand"><span class="mark">{ }</span><span>toolbox</span><span class="label">JSON</span></div>
       <label class="query"><span>/</span><input type="search" placeholder="Filter keys, values, or paths" autocomplete="off" spellcheck="false"></label>
-      <div class="actions"><button type="button" data-action="expand">Expand all</button><button type="button" data-action="collapse">Collapse all</button></div>
+      <div class="actions"><button type="button" data-action="expand">Expand all</button><button type="button" data-action="collapse">Collapse nested</button></div>
     </header>
     <section class="content" aria-label="JSON document"></section>
   `;
@@ -151,8 +151,12 @@ function createViewer(data: JsonValue) {
 
   root.querySelectorAll<HTMLButtonElement>('[data-action]').forEach((button) => button.addEventListener('click', () => {
     const collapse = button.dataset.action === 'collapse';
-    root.querySelectorAll<HTMLElement>('.node').forEach((node) => node.classList.toggle('collapsed', collapse));
-    root.querySelectorAll<HTMLButtonElement>('.toggle').forEach((toggle) => { toggle.textContent = collapse ? '▸' : '▾'; });
+    root.querySelectorAll<HTMLElement>('.node').forEach((node) => {
+      node.classList.toggle('collapsed', collapse && !node.classList.contains('root'));
+    });
+    root.querySelectorAll<HTMLButtonElement>('.toggle').forEach((toggle) => {
+      toggle.textContent = collapse && !toggle.closest('.root') ? '▸' : '▾';
+    });
   }));
 }
 
