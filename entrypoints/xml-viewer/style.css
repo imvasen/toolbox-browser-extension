@@ -13,8 +13,12 @@ header { position: sticky; top: 0; z-index: 1; display: flex; gap: 18px; align-i
 .mark, .attribute { color: #7dcfff; }
 .label { padding: 1px 6px; border: 1px solid #292e42; color: #565f89; font-size: 11px; font-weight: 500; }
 .actions { margin-left: auto; }
-button { border: 1px solid #292e42; border-radius: 4px; padding: 4px 9px; background: #1a1b26; color: #c0caf5; cursor: pointer; font: inherit; font-size: 12px; }
-button:hover { border-color: #7dcfff; color: #7dcfff; }
+.toolbox-button { display: inline-flex; height: 32px; align-items: center; justify-content: center; gap: 6px; border: 1px solid transparent; border-radius: 8px; padding: 0 10px; background: #7dcfff; color: #1a1b26; cursor: pointer; font: inherit; font-size: 14px; font-weight: 500; line-height: 1; white-space: nowrap; transition: background-color 150ms, border-color 150ms, color 150ms; }
+.toolbox-button:hover { background: color-mix(in srgb, #7dcfff 80%, #1a1b26); }
+.toolbox-button:focus-visible { outline: 3px solid color-mix(in srgb, #7dcfff 50%, transparent); outline-offset: 2px; }
+.toolbox-button:disabled { pointer-events: none; opacity: .5; }
+.toolbox-button--outline { border-color: #292e42; background: #1a1b26; color: #c0caf5; }
+.toolbox-button--outline:hover { border-color: #7dcfff; background: color-mix(in srgb, #7dcfff 12%, #1a1b26); color: #7dcfff; }
 .content { padding: 24px; overflow: auto; font-size: 14px; line-height: 1.65; }
 details { padding-left: 22px; }
 details.root { padding-left: 0; }
