@@ -6,5 +6,6 @@ export default defineConfig({
   manifest: {
     name: 'Toolbox',
     description: 'A structured JSON viewer for browser responses.',
+    permissions: ['storage', 'tabs'],
   },
 });

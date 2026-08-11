@@ -44,6 +44,16 @@ function isJsonDocument(): JsonValue | undefined {
   }
 }
 
+function getXmlDocument(): Element | undefined {
+  const contentType = document.contentType.toLowerCase();
+  if (!contentType.includes('xml') || contentType === 'image/svg+xml') return undefined;
+
+  // Chromium wraps XML responses in an XHTML viewer and keeps the source XML here.
+  const root = document.querySelector('#webkit-xml-viewer-source-xml > *') ?? document.documentElement;
+  if (!root || root.localName === 'parsererror') return undefined;
+  return root.cloneNode(true) as Element;
+}
+
 function valueType(value: JsonValue): string {
   if (value === null) return 'null';
   if (Array.isArray(value)) return 'array';
@@ -225,6 +235,14 @@ function createViewer(data: JsonValue) {
   }));
 }
 
+function createXmlViewer(xml: Element) {
+  void browser.runtime.sendMessage({
+    type: 'open-xml-viewer',
+    xml: new XMLSerializer().serializeToString(xml),
+    title: document.title,
+  });
+}
+
 function escapeHtml(value: string): string {
   const element = document.createElement('span');
   element.textContent = value;
@@ -237,5 +255,9 @@ export default defineContentScript({
   main() {
     const data = isJsonDocument();
     if (data !== undefined) createViewer(data);
+    else {
+      const xml = getXmlDocument();
+      if (xml) createXmlViewer(xml);
+    }
   },
 });
