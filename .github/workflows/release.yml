@@ -43,6 +43,44 @@ jobs:
       - name: Build release archives
         run: pnpm zip && pnpm zip:firefox
 
+      - name: Get Chrome Web Store access token
+        id: chrome-token
+        env:
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+        run: |
+          test -n "$CHROME_CLIENT_ID"
+          test -n "$CHROME_CLIENT_SECRET"
+          test -n "$CHROME_REFRESH_TOKEN"
+          TOKEN=$(curl --fail-with-body --silent --show-error --request POST \
+            --data-urlencode "client_id=$CHROME_CLIENT_ID" \
+            --data-urlencode "client_secret=$CHROME_CLIENT_SECRET" \
+            --data-urlencode "refresh_token=$CHROME_REFRESH_TOKEN" \
+            --data-urlencode 'grant_type=refresh_token' \
+            https://oauth2.googleapis.com/token | jq --raw-output '.access_token')
+          test "$TOKEN" != null
+          printf 'value=%s\n' "$TOKEN" >> "$GITHUB_OUTPUT"
+
+      - name: Upload and publish to Chrome Web Store
+        env:
+          ACCESS_TOKEN: ${{ steps.chrome-token.outputs.value }}
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          test -n "$CHROME_EXTENSION_ID"
+          test -n "$CHROME_PUBLISHER_ID"
+          ARCHIVE=".output/toolbox-$TAG-chrome.zip"
+          ITEM="publishers/$CHROME_PUBLISHER_ID/items/$CHROME_EXTENSION_ID"
+          curl --fail-with-body --silent --show-error --request POST \
+            --header "Authorization: Bearer $ACCESS_TOKEN" \
+            --upload-file "$ARCHIVE" \
+            "https://chromewebstore.googleapis.com/upload/v2/$ITEM:upload"
+          curl --fail-with-body --silent --show-error --request POST \
+            --header "Authorization: Bearer $ACCESS_TOKEN" \
+            "https://chromewebstore.googleapis.com/v2/$ITEM:publish"
+
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
