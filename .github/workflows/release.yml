@@ -1,0 +1,59 @@
+name: Release extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Version tag to release, such as 0.1.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and release extension
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate source
+        run: pnpm lint && pnpm compile
+
+      - name: Check release version
+        env:
+          TAG: ${{ inputs.tag }}
+        run: test "$(node -p \"require('./package.json').version\")" = "$TAG"
+
+      - name: Build release archives
+        run: pnpm zip && pnpm zip:firefox
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          ASSETS=".output/toolbox-$TAG-chrome.zip .output/toolbox-$TAG-firefox.zip .output/toolbox-$TAG-sources.zip"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" $ASSETS --clobber
+          else
+            gh release create "$TAG" $ASSETS --title "Toolbox $TAG" --generate-notes
+          fi
