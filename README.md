@@ -19,6 +19,6 @@ git commit -m "chore: release v0.2.0"
 git push origin main
 ```
 
-The auto-tag workflow does nothing when the `<version>` tag already exists, so bump the version for every release. To publish a tagged release, run **Release extension** from the Actions tab and enter the version tag. It validates the tag, builds Chrome and Firefox archives, and creates or updates the matching GitHub Release.
+The auto-tag workflow does nothing when the `<version>` tag already exists, so bump the version for every release. To publish a tagged release, select its tag from the **Use workflow from** list, then run **Release extension** from the Actions tab. It validates that the tag matches `package.json`, builds Chrome and Firefox archives, and creates or updates the matching GitHub Release.
 
 Chrome Web Store publication needs a store listing ID and publisher credentials. Firefox Add-ons publication needs a permanent Gecko extension ID and AMO credentials.
