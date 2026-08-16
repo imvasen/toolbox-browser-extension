@@ -38,25 +38,13 @@ function XmlNode({ element }: { element: Element }) {
     </details>
   );
 }
-function App() {
-  const [viewer, setViewer] = useState<ViewerDocument>();
+export function XmlViewer({ viewer }: { viewer: ViewerDocument }) {
   const [theme, setTheme] = useState('tokyo-night');
   useEffect(() => {
-    const id = new URLSearchParams(location.search).get('id');
-    if (id)
-      void browser.runtime
-        .sendMessage({ type: 'get-viewer', id })
-        .then((value: ViewerDocument | undefined) => setViewer(value));
     void browser.storage.local.get('theme').then(({ theme }) => {
       if (theme === 'catppuccin') setTheme(theme);
     });
   }, []);
-  if (!viewer)
-    return (
-      <p className='p-6'>
-        The XML response is no longer available. Reload the original URL.
-      </p>
-    );
   const xml = new DOMParser().parseFromString(viewer.text, 'application/xml');
   if (xml.documentElement.localName === 'parsererror')
     return <p className='p-6'>Toolbox could not parse this XML response.</p>;
@@ -87,4 +75,24 @@ function App() {
     </main>
   );
 }
-ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
+
+function App() {
+  const [viewer, setViewer] = useState<ViewerDocument>();
+  useEffect(() => {
+    const id = new URLSearchParams(location.search).get('id');
+    if (id)
+      void browser.runtime
+        .sendMessage({ type: 'get-viewer', id })
+        .then((value: ViewerDocument | undefined) => setViewer(value));
+  }, []);
+  return viewer ? (
+    <XmlViewer viewer={viewer} />
+  ) : (
+    <p className='p-6'>
+      The XML response is no longer available. Reload the original URL.
+    </p>
+  );
+}
+
+const root = document.getElementById('root');
+if (root) ReactDOM.createRoot(root).render(<App />);

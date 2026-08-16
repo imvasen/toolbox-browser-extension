@@ -7,10 +7,12 @@ export default defineConfig({
   vite: () => ({ plugins: [tailwindcss()] }),
   manifest: {
     name: 'Toolbox',
-    description: 'Replace raw JSON and XML responses with fast, searchable, expandable tree views.',
+    description:
+      'Format JSON and XML responses in place with searchable trees and an optional jq workspace.',
     permissions: ['storage', 'tabs'],
     content_security_policy: {
-      extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';",
+      extension_pages:
+        "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';",
     },
     browser_specific_settings: {
       gecko: {

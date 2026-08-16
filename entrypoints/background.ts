@@ -1,18 +1,24 @@
-import type { GetViewerMessage, OpenViewerMessage, ViewerDocument } from '@/entrypoints/shared/viewer';
+import type {
+  GetViewerMessage,
+  OpenJqViewerMessage,
+  ViewerDocument,
+} from '@/entrypoints/shared/viewer';
 
-type ViewerMessage = OpenViewerMessage | GetViewerMessage;
+type ViewerMessage = OpenJqViewerMessage | GetViewerMessage;
 
 export default defineBackground(() => {
-  browser.runtime.onMessage.addListener(async (message: ViewerMessage, sender) => {
-    if (message.type === 'open-viewer' && sender.tab?.id !== undefined) {
+  browser.runtime.onMessage.addListener(async (message: ViewerMessage) => {
+    if (message.type === 'open-jq-viewer') {
       const id = crypto.randomUUID();
       await browser.storage.session.set({ [`viewer:${id}`]: message.document });
-      const url = message.document.kind === 'json'
-        ? browser.runtime.getURL(`/json-viewer.html?id=${id}`)
-        : browser.runtime.getURL(`/xml-viewer.html?id=${id}`);
-      await browser.tabs.update(sender.tab.id, { url });
+      await browser.tabs.create({
+        url: browser.runtime.getURL(`/json-viewer.html?id=${id}`),
+      });
     }
-    if (message.type === 'get-viewer') return (await browser.storage.session.get(`viewer:${message.id}`))[`viewer:${message.id}`] as ViewerDocument | undefined;
+    if (message.type === 'get-viewer')
+      return (await browser.storage.session.get(`viewer:${message.id}`))[
+        `viewer:${message.id}`
+      ] as ViewerDocument | undefined;
     return undefined;
   });
 });

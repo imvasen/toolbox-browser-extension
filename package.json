@@ -1,8 +1,8 @@
 {
   "name": "toolbox",
-  "description": "Replace raw JSON and XML responses with fast, searchable, expandable tree views.",
+  "description": "Format JSON and XML responses in place with searchable trees and an optional jq workspace.",
   "private": true,
-  "version": "0.1.3",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "wxt",

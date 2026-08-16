@@ -66,8 +66,7 @@ function Node({
     </details>
   );
 }
-function App() {
-  const [document, setDocument] = useState<ViewerDocument>();
+export function JsonViewer({ document }: { document: ViewerDocument }) {
   const [query, setQuery] = useState('');
   const [theme, setTheme] = useState('tokyo-night');
   const [mode, setMode] = useState<'filter' | 'jq'>('filter');
@@ -75,21 +74,10 @@ function App() {
   const [status, setStatus] = useState('');
   const [running, setRunning] = useState(false);
   useEffect(() => {
-    const id = new URLSearchParams(location.search).get('id');
-    if (id)
-      void browser.runtime
-        .sendMessage({ type: 'get-viewer', id })
-        .then((value: ViewerDocument | undefined) => setDocument(value));
     void browser.storage.local.get('theme').then(({ theme }) => {
       if (theme === 'catppuccin') setTheme(theme);
     });
   }, []);
-  if (!document)
-    return (
-      <p className='p-6'>
-        The response is no longer available. Reload the original URL.
-      </p>
-    );
   try {
     const data = JSON.parse(document.text) as Json;
     document.title = `${document.title || 'JSON'} | Toolbox`;
@@ -144,6 +132,13 @@ function App() {
               jq
             </Button>
           </div>
+          <Button
+            size='sm'
+            variant='outline'
+            onClick={() => window.location.assign(document.sourceUrl)}
+          >
+            Back to response
+          </Button>
           <input
             className='border-border bg-background focus:ring-ring h-8 flex-1 rounded-lg border px-2 text-sm outline-none focus:ring-2'
             placeholder={
@@ -193,4 +188,24 @@ function App() {
     return <p className='p-6'>Toolbox could not parse this JSON response.</p>;
   }
 }
-ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
+
+function App() {
+  const [document, setDocument] = useState<ViewerDocument>();
+  useEffect(() => {
+    const id = new URLSearchParams(location.search).get('id');
+    if (id)
+      void browser.runtime
+        .sendMessage({ type: 'get-viewer', id })
+        .then((value: ViewerDocument | undefined) => setDocument(value));
+  }, []);
+  return document ? (
+    <JsonViewer document={document} />
+  ) : (
+    <p className='p-6'>
+      The response is no longer available. Reload the original URL.
+    </p>
+  );
+}
+
+const root = document.getElementById('root');
+if (root) ReactDOM.createRoot(root).render(<App />);
