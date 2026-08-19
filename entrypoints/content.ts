@@ -4,9 +4,8 @@ import ReactDOM from 'react-dom/client';
 
 import { JsonResponseViewer } from '@/entrypoints/json-viewer/response-viewer';
 import type { ViewerDocument } from '@/entrypoints/shared/viewer';
-import { XmlViewer } from '@/entrypoints/xml-viewer/main';
-
-import '@/styles/globals.css';
+import { XmlResponseViewer } from '@/entrypoints/xml-viewer/response-viewer';
+import viewerStyles from '@/styles/globals.css?inline';
 
 function jsonText(): string | undefined {
   const text = document.body?.innerText.trim();
@@ -36,6 +35,7 @@ function xmlText(): string | undefined {
 export default defineContentScript({
   matches: ['<all_urls>'],
   runAt: 'document_idle',
+  cssInjectionMode: 'manual',
   main() {
     const json = jsonText();
     const xml = json ? undefined : xmlText();
@@ -46,12 +46,15 @@ export default defineContentScript({
       text: json ?? xml!,
       title: document.title,
     };
+    const style = document.createElement('style');
+    style.textContent = viewerStyles;
+    document.head.append(style);
     const root = document.createElement('div');
     document.body.replaceChildren(root);
     ReactDOM.createRoot(root).render(
       viewerDocument.kind === 'json'
         ? createElement(JsonResponseViewer, { document: viewerDocument })
-        : createElement(XmlViewer, { viewer: viewerDocument }),
+        : createElement(XmlResponseViewer, { viewer: viewerDocument }),
     );
   },
 });
